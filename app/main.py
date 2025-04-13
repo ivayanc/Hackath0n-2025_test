@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.api.endpoints import users
+from app.api import location
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 from contextlib import asynccontextmanager
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(location.router, prefix="/api/locations", tags=["locations"])
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
