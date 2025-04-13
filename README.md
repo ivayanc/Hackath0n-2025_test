@@ -1,13 +1,13 @@
 # PickME
 
-This project is a PICKME
+Test task for Hackath0n-2025
 
-[STABLE VERSION](https://pick-m3-30c9736c722b.herokuapp.com/)
+[STABLE VERSION](https://hackath0n-2025test-9e2a414779d4.herokuapp.com/docs)
 
 ## Features
 
-COMMON U DONT NEED THIS, JUST PICKME
-
+AUTH0 authorization
+Postgresql database
 
 ## Installation
 
