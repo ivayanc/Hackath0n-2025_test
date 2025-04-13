@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import List
+from sqlalchemy import select, or_
+from typing import List, Optional
 import uuid
 
 from app.db.session import get_db
 from app.schemas.location import Location, LocationCreate
-from app.models.location import Location as LocationModel
+from app.models.location import Location as LocationModel, LocationType
 
 router = APIRouter()
 
@@ -26,8 +26,30 @@ async def create_location(location: LocationCreate, db: AsyncSession = Depends(g
     return db_location
 
 @router.get("/", response_model=List[Location])
-async def list_locations(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
-    query = select(LocationModel).offset(skip).limit(limit)
+async def list_locations(
+    skip: int = 0,
+    limit: int = 100,
+    search: Optional[str] = None,
+    types: Optional[List[LocationType]] = Query(None),
+    db: AsyncSession = Depends(get_db)
+):
+    query = select(LocationModel)
+    
+    # Apply search filter if provided
+    if search:
+        search_filter = or_(
+            LocationModel.name.ilike(f"%{search}%"),
+            LocationModel.description.ilike(f"%{search}%")
+        )
+        query = query.filter(search_filter)
+    
+    # Apply type filter if provided
+    if types:
+        query = query.filter(LocationModel.type.in_(types))
+    
+    # Apply pagination
+    query = query.offset(skip).limit(limit)
+    
     result = await db.execute(query)
     locations = result.scalars().all()
     return locations 
