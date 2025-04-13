@@ -52,4 +52,18 @@ async def list_locations(
     
     result = await db.execute(query)
     locations = result.scalars().all()
-    return locations 
+    return locations
+
+@router.get("/{location_id}", response_model=Location)
+async def get_location(location_id: str, db: AsyncSession = Depends(get_db)):
+    query = select(LocationModel).filter(LocationModel.id == location_id)
+    result = await db.execute(query)
+    location = result.scalar_one_or_none()
+    
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Location with id {location_id} not found"
+        )
+    
+    return location 
