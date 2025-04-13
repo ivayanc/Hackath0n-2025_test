@@ -53,3 +53,4 @@ except Exception as e:
 
 def import_models():
     from app.models.user import User
+    from app.models.location import Location
