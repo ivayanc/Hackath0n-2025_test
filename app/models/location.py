@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Enum, JSON
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 import enum
 
@@ -16,4 +17,7 @@ class Location(Base):
     coordinates = Column(JSON, nullable=False)  # Will store {lat: float, lng: float}
     factors = Column(JSONB, nullable=True)  # For storing flexible JSON data
     type = Column(Enum(LocationType), nullable=False)
-    description = Column(String, nullable=True) 
+    description = Column(String, nullable=True)
+
+    # Relationships
+    reviews = relationship("LocationReview", back_populates="location") 
