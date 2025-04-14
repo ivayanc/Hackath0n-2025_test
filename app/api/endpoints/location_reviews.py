@@ -18,7 +18,7 @@ async def list_location_reviews(
     skip: int = 0,
     limit: int = 100
 ):
-    stmt = select(LocationReview).where(LocationReview.location_id == location_id).offset(skip).limit(limit)
+    stmt = select(LocationReview).join(User).where(LocationReview.location_id == location_id).offset(skip).limit(limit)
     result = await db.execute(stmt)
     reviews = result.scalars().all()
     return reviews
@@ -28,7 +28,7 @@ async def get_location_review(
     review_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(LocationReview).where(LocationReview.id == review_id)
+    stmt = select(LocationReview).join(User).where(LocationReview.id == review_id)
     result = await db.execute(stmt)
     review = result.scalar_one_or_none()
     
@@ -44,7 +44,7 @@ async def create_location_review(
 ):
     # Check if reply_to_id exists if provided
     if review.reply_to_id:
-        stmt = select(LocationReview).where(LocationReview.id == review.reply_to_id)
+        stmt = select(LocationReview).join(User).where(LocationReview.id == review.reply_to_id)
         result = await db.execute(stmt)
         parent_review = result.scalar_one_or_none()
         if not parent_review:
@@ -61,4 +61,9 @@ async def create_location_review(
     db.add(db_review)
     await db.commit()
     await db.refresh(db_review)
-    return db_review 
+    
+    # Get the review with user information
+    stmt = select(LocationReview).join(User).where(LocationReview.id == db_review.id)
+    result = await db.execute(stmt)
+    review_with_user = result.scalar_one()
+    return review_with_user 
