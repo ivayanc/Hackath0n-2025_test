@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from typing import List
 from app.db.session import get_db
 from app.models.location_review import LocationReview
@@ -10,22 +11,26 @@ import uuid
 
 router = APIRouter()
 
-@router.get("/review_for_location/{location_id}", response_model=List[LocationReviewResponse])
+@router.get("/", response_model=List[LocationReviewResponse])
 async def list_location_reviews(
-    location_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     skip: int = 0,
     limit: int = 100
 ):
-    reviews = await db.query(LocationReview).filter(LocationReview.location_id == location_id).offset(skip).limit(limit).all()
+    stmt = select(LocationReview).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    reviews = result.scalars().all()
     return reviews
 
 @router.get("/{review_id}", response_model=LocationReviewResponse)
 async def get_location_review(
     review_id: str,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    review = db.query(LocationReview).filter(LocationReview.id == review_id).first()
+    stmt = select(LocationReview).filter(LocationReview.id == review_id)
+    result = await db.execute(stmt)
+    review = result.scalar_one_or_none()
+    
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return review
@@ -33,12 +38,14 @@ async def get_location_review(
 @router.post("/", response_model=LocationReviewResponse)
 async def create_location_review(
     review: LocationReviewCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     # Check if reply_to_id exists if provided
     if review.reply_to_id:
-        parent_review = db.query(LocationReview).filter(LocationReview.id == review.reply_to_id).first()
+        stmt = select(LocationReview).filter(LocationReview.id == review.reply_to_id)
+        result = await db.execute(stmt)
+        parent_review = result.scalar_one_or_none()
         if not parent_review:
             raise HTTPException(status_code=404, detail="Parent review not found")
 
