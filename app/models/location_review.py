@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, Text, ForeignKey
+from sqlalchemy import Column, String, Integer, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.db.base import Base
 
 class LocationReview(Base):
@@ -11,6 +12,8 @@ class LocationReview(Base):
     rating = Column(Integer, nullable=False)
     review = Column(Text, nullable=False)
     reply_to_id = Column(String, ForeignKey("location_reviews.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
     user = relationship("User", back_populates="location_reviews")
