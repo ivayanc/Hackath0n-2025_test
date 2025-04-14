@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from app.schemas.user import UserResponse
 
 class LocationReviewBase(BaseModel):
     rating: int = Field(..., ge=1, le=5)
@@ -12,7 +13,7 @@ class LocationReviewCreate(LocationReviewBase):
 
 class LocationReviewResponse(LocationReviewBase):
     id: str
-    user_id: str
+    user: UserResponse
     location_id: str
     created_at: datetime
     updated_at: datetime

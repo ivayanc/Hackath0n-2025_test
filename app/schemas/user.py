@@ -19,3 +19,15 @@ class UserInDBBase(UserBase):
 
 class User(UserInDBBase):
     pass
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    full_name: str | None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

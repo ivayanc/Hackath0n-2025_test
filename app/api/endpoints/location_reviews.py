@@ -28,7 +28,7 @@ async def get_location_review(
     review_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(LocationReview).filter(LocationReview.id == review_id)
+    stmt = select(LocationReview).where(LocationReview.id == review_id)
     result = await db.execute(stmt)
     review = result.scalar_one_or_none()
     
@@ -44,7 +44,7 @@ async def create_location_review(
 ):
     # Check if reply_to_id exists if provided
     if review.reply_to_id:
-        stmt = select(LocationReview).filter(LocationReview.id == review.reply_to_id)
+        stmt = select(LocationReview).where(LocationReview.id == review.reply_to_id)
         result = await db.execute(stmt)
         parent_review = result.scalar_one_or_none()
         if not parent_review:
