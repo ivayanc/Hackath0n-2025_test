@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
@@ -17,16 +17,5 @@ class LocationReviewResponse(LocationReviewBase):
     created_at: datetime
     updated_at: datetime
 
-    @field_validator('created_at', 'updated_at', mode='before')
-    def parse_datetime(cls, value):
-        if isinstance(value, str):
-            try:
-                return datetime.fromisoformat(value)
-            except ValueError:
-                raise ValueError("Invalid datetime format")
-        return value
-
-    model_config = ConfigDict(
-        from_attributes=True,
-        json_encoders={datetime: lambda dt: dt.isoformat()}
-    ) 
+    class Config:
+        from_attributes = True

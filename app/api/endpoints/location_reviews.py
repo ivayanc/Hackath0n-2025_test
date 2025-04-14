@@ -50,6 +50,6 @@ async def create_location_review(
         reply_to_id=review.reply_to_id
     )
     db.add(db_review)
-    db.commit()
-    db.refresh(db_review)
+    await db.commit()
+    await db.refresh(db_review)
     return db_review 
