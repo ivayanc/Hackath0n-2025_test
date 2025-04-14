@@ -4,14 +4,14 @@ from typing import List
 from app.db.session import get_db
 from app.models.location_review import LocationReview
 from app.schemas.location_review import LocationReviewCreate, LocationReviewResponse
-from app.auth.deps import get_current_user
+from app.auth.auth0 import get_current_user
 from app.models.user import User
 import uuid
 
 router = APIRouter()
 
 @router.get("/", response_model=List[LocationReviewResponse])
-def list_location_reviews(
+async def list_location_reviews(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100
@@ -20,7 +20,7 @@ def list_location_reviews(
     return reviews
 
 @router.get("/{review_id}", response_model=LocationReviewResponse)
-def get_location_review(
+async def get_location_review(
     review_id: str,
     db: Session = Depends(get_db)
 ):
@@ -30,7 +30,7 @@ def get_location_review(
     return review
 
 @router.post("/", response_model=LocationReviewResponse)
-def create_location_review(
+async def create_location_review(
     review: LocationReviewCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
