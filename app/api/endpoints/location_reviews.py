@@ -11,13 +11,14 @@ import uuid
 
 router = APIRouter()
 
-@router.get("/", response_model=List[LocationReviewResponse])
+@router.get("/for_location/{location_id}", response_model=List[LocationReviewResponse])
 async def list_location_reviews(
+    location_id: str,
     db: AsyncSession = Depends(get_db),
     skip: int = 0,
     limit: int = 100
 ):
-    stmt = select(LocationReview).offset(skip).limit(limit)
+    stmt = select(LocationReview).where(LocationReview.location_id == location_id).offset(skip).limit(limit)
     result = await db.execute(stmt)
     reviews = result.scalars().all()
     return reviews
